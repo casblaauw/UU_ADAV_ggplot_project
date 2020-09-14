@@ -1,0 +1,69 @@
+---
+title: "Practical 2 - Question 10"
+author: "Cas Blaauw, Dominic Comerford and Netanja Harlianto"
+date: "12/05/2020"
+output: html_document
+---
+## Setup
+
+```{r}
+library(tidyverse)
+library(gganimate)
+library(gifski)
+```
+
+## Importing and exploring the data
+
+```{r}
+head(txhousing)
+
+txhousing %>%   #Sum the total listings per city across all years in the data
+  group_by(city) %>%
+  summarise(sum = sum(listings, na.rm = T)) %>%
+  arrange(desc(sum))
+```
+
+### Gathering the biggest markets
+
+```{r}
+txcities <- txhousing %>%
+  group_by(city) %>%
+  summarise(sum = sum(listings, na.rm = T)) %>%
+  arrange(desc(sum)) %>%
+  pull(city) %>%
+  .[1:8]
+txcities
+```
+
+
+## Making the plot
+
+```{r warning=FALSE}
+txtop <- #Filter out all but the 8 biggest cities
+  txhousing %>%
+  filter(city %in% txcities) %>%
+  group_by(city, year) 
+
+txsummary <- #Calculate the mean statistics over every year
+  txtop %>%
+  summarise(meaninv = mean(inventory, na.rm = T), 
+            meanmed = mean(median, na.rm = T))
+txplot <-
+  ggplot() + 
+  geom_point(data = txsummary,    #Plot the mean values big
+             aes(meaninv, meanmed, col=city), 
+             size = 4) +
+  geom_point(data = txtop,        #Plot the separate values small and transparent
+             aes(inventory, median, col=city), 
+             alpha = 0.2) +
+  transition_time(year) +         #Add the animation aspect
+  labs(title = "Biggest real estate markets in Texas \n Year: {frame_time}") +
+  xlab('Months inventory') +
+  ylab('Median sale price') +
+  theme_bw() +
+  labs(col = "Cities")
+
+txplot
+```
+
+Our plot displays the Median Sale Price of houses (Y-axis) in the 8 biggest Texan cities (selected on total listings) against the expected duration in months it would take to sell all listed houses per year  (2000-2015). There are some clear patterns that distinguish the cities from one another. First of all, the median selling price of houses in Collin County, Austin and Ford Bend are apparently higher than in other areas, as well as that this median is evidently lowest in Fort Worth. San Antonio starts off with a low median selling price, but here the median selling prices increases fast around the year 2005. Secondly, it seems as though the impact of the economic crisis (2008) did not so much affect median selling prices, but rather the expected duration to sell and that in the years after the crisis the median selling prices in all areas rapidly grew, as well as that expected duration of selling decreased.
