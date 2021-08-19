@@ -1,6 +1,6 @@
-# Hand-in assignment 2 for the course Applied Data Analysis and Visualisation.
+# ggplot project for the course Applied Data Analysis and Visualisation.
 
-Written together with Dominic and Netanja.
+Made together with Dominic and Netanja.
 
 ## Repository content
 
